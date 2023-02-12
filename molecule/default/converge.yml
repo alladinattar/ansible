@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: "Include vm_init"
+      ansible.builtin.include_role:
+        name: "vm_init"
+
+- import_playbook: ../../main.yml

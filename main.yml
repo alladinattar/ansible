@@ -1,0 +1,44 @@
+---
+- name: VM initialization for new project
+  hosts: all
+  vars: 
+    project_name: test_project
+  tasks:
+    - name: Install docker
+      apt:
+        update_cache: true
+        name: "{{ item }}"
+      with_items:
+        - docker.io
+
+    - name: Create docker group
+      group:
+        name: docker
+        state: present
+
+    - name: Create ci user
+      user:
+        name: user
+        groups: docker
+
+    - name: Create a 2048-bit SSH key for user in ~user/.ssh/id_rsa
+      user:
+        name: user
+        generate_ssh_key: yes
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+
+    - name: Create dir for project
+      file:
+        path: "/home/user/{{ project_name }}"
+        state: directory
+        owner: user
+        group: user
+
+    - name: Fetch id_rsa
+      fetch:
+        src: /home/user/.ssh/id_rsa
+        dest: ./id_rsa
+        flat: yes
+      
+
