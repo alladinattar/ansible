@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include bugbounty"
+      include_role:
+        name: "bugbounty"
+- import_playbook: ../../main.yml

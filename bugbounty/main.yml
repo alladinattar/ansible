@@ -1,0 +1,77 @@
+---
+- name: bugbounty vm initialization
+  hosts: all
+  pre_tasks:
+    - name: Install tools
+      apt:
+        update_cache: true
+        name: "{{ item }}"
+      with_items:
+        - git
+        - unzip
+
+  tasks:
+    - name: FFUF download
+      get_url:
+        url: https://github.com/ffuf/ffuf/releases/download/v1.5.0/ffuf_1.5.0_linux_amd64.tar.gz
+        dest: /tmp/ffuf.tar.gz
+        mode: 777
+
+    - name: Create dir for FFUF
+      file: 
+        path: /tmp/ffuf_unpacked/ 
+        state: directory
+
+    - name: Extract FFUF
+      unarchive:
+        remote_src: yes
+        src: /tmp/ffuf.tar.gz
+        dest: /tmp/ffuf_unpacked/
+
+    - name: Add FFUF to bin
+      copy:
+        src: /tmp/ffuf_unpacked/ffuf
+        dest: /usr/bin/
+        mode: 0777
+        remote_src: true
+
+    - name: clear ffuf
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /tmp/ffuf_unpacked
+        - /tmp/ffuf.tar.gz
+    
+    - name: Seclists installation
+      git: 
+        repo: 'https://github.com/danielmiessler/SecLists.git'
+        dest: /usr/share/seclists
+        single_branch: true
+
+    - name: Amass download
+      get_url:
+        url: https://github.com/OWASP/Amass/releases/download/v3.21.2/amass_linux_amd64.zip
+        dest: /tmp/amass.zip
+        mode: 777
+
+    - name: Extract amass
+      unarchive:
+        remote_src: yes
+        src: /tmp/amass.zip
+        dest: /tmp/
+
+    - name: Add amass to bin
+      copy:
+        src: /tmp/amass_linux_amd64/amass
+        dest: /usr/bin/amass
+        mode: 0777
+        remote_src: true
+
+    - name: Clear amass
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        #        - /tmp/amass_unpacked
+        - /tmp/amass.zip
