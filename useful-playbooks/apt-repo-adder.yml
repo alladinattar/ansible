@@ -1,0 +1,23 @@
+---
+- name: Add apt source
+  hosts: all
+  become: true
+  tasks:
+    - name: Copy public key
+      ansible.builtin.copy:
+        src: ./public.gpg.key
+        dest: /tmp/public.gpg.key
+        owner: user
+        group: user
+        mode: u=rw,g=r,o=r
+
+    - name: Add key
+      ansible.builtin.command: apt-key add /tmp/public.gpg.key
+
+    - name: Copy repo file
+      ansible.builtin.copy:
+        src: ./nexus.list
+        dest: /etc/apt/sources.list.d/nexus.list
+        owner: user
+        group: user
+        mode: u=rw,g=r,o=r
